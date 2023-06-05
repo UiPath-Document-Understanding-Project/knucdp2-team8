@@ -1,0 +1,78 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;net6.0-windows7.0;net6.0</TargetFrameworks>
+	<Deterministic>false</Deterministic>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<OutputPath>$(ProjectDir)..\Output\SampleActivities</OutputPath>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net6.0'">$(DefineConstants);NETSTANDARD;NETPORTABLE_UIPATH</DefineConstants>
+
+	<PackageId>CustomDUActivities</PackageId>
+	<PackageVersion>$(Version)</PackageVersion>
+	<Title>UiPath Custom DU Activities</Title>
+	<Authors>UiPath</Authors>
+	<Description>UiPath Document Understanding Custom DU Activities.</Description>
+	<PackageOutputPath>$(ProjectDir)..\Output\Packages</PackageOutputPath>
+	<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Debug'">true</GeneratePackageOnBuild>
+	<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">false</GeneratePackageOnBuild>
+	<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
+
+  <PropertyGroup>
+	<Product>CustomDUActivities</Product>
+	<VersionMajor>1</VersionMajor>
+	<VersionMinor>0</VersionMinor>
+	<VersionBuild>0</VersionBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+	<VersionBuild>$(VersionBuild)$([System.DateTime]::UtcNow.DayOfYear.ToString("F0"))</VersionBuild>
+	<VersionRevision>$([System.Math]::Floor($([MSBuild]::Divide($([System.DateTime]::UtcNow.TimeOfDay.TotalMinutes), 5))))</VersionRevision>
+	<VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionBuild)-dev.$(VersionRevision)</VersionPrefix>
+	<AssemblyVersion>$(VersionMajor).$(VersionMinor).$(VersionBuild).$(VersionRevision)</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net6.0'">
+	<UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="WindowsBase" />
+	<Reference Include="System.Activities" />
+	<Reference Include="System.Activities.Presentation" />
+	<Reference Include="PresentationCore" />
+	<Reference Include="PresentationFramework" />
+	<Reference Include="System.Xaml" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'net461' ">
+	<PackageReference Include="System.Activities" Version="5.0.0-20210922-03" PrivateAssets="All" />
+	<PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Basic\DataExtraction\ClovaIDCardDesigner.xaml.cs" />
+    <Compile Remove="Basic\OCR\ClovaGeneralOCR.cs" />
+    <Compile Remove="Basic\OCR\SimpleOCREngine.cs" />
+    <Compile Remove="Basic\OCR\SimpleOCRScrape.cs" />
+    <Compile Remove="Basic\OCR\SimpleOCRScrapeFactory.cs" />
+    <Compile Remove="Basic\OCR\SimpleScrapeControl.xaml.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Remove="Basic\DataExtraction\AzureInvoiceDesigner.xaml" />
+    <Page Remove="Basic\DataExtraction\ClovaIDCardDesigner.xaml" />
+    <Page Remove="Basic\OCR\SimpleScrapeControl.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.FormRecognizer" Version="4.0.0" />
+    <PackageReference Include="UiPath.DocumentProcessing.Contracts" Version="1.18.0" />
+    <PackageReference Include="UiPath.OCR.Contracts" Version="2.14.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0-windows7.0' ">
+	<PackageReference Include="System.Activities.Core.Presentation" PrivateAssets="All" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(ConfigurationName)' == 'Debug' ">
+	<Exec Command="if exist &quot;$(SolutionDir)Output\Packages\$(PackageId).*&quot; del &quot;$(SolutionDir)Output\Packages\$(PackageId).*&quot;" />
+  </Target>
+
+</Project>
